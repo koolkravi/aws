@@ -1,0 +1,101 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Amazon EKS Node Group'
+Parameters:
+  ClusterName:
+    Type: String
+    Default: eks-cluster
+    Description: Cluster Name
+  NodeGroupRoleArn:
+    Type: String
+    Default: arn:aws:iam::770239628917:role/eksWorkerNodeGroupRole-NodeInstanceRole-XRWMXWZT5275
+    Description: RoleArn
+  AmiType:
+    Type: String
+    Default: AL2_x86_64_GPU
+    Description: AmiType
+  InstanceTypes:
+    Type: CommaDelimitedList
+    Default: t3.small
+    Description: InstanceTypes
+
+  SubnetIds:
+    Type: CommaDelimitedList
+    Default: subnet-0c64cd521f1b99fe4,subnet-0a55114cf202df088,subnet-00eca565a5ae026e1,subnet-0c12781233356d113
+    Description: SubnetIds
+
+  MinSize:
+    Type: String
+    Default: 2
+    Description: MinSize
+  DesiredSize:
+    Type: String
+    Default: 2
+    Description: MinSize
+  MaxSize:
+    Type: String
+    Default: 3
+    Description: MinSize
+
+  Ec2SshKey:
+    Type: String
+    Default: ravieksawskey
+    Description: Ec2 Ssh Key
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: "Node group Config"
+        Parameters:
+          - ClusterName
+          - NodeGroupRoleArn
+          - AmiType
+          - InstanceTypes
+          - PrivateSubnetIds
+      -
+        Label:
+          default: "Scaling Config"
+        Parameters:
+          - MinSize
+          - DesiredSize
+          - MaxSize
+      -
+        Label:
+          default: "SSH Key and Security Group"
+        Parameters:
+          - Ec2SshKey
+          - SourceSecurityGroups
+
+Resources:
+  EKSNodegroup:
+    Type: 'AWS::EKS::Nodegroup'
+    Properties:
+      ClusterName: !Ref ClusterName
+      NodeRole: !Ref NodeGroupRoleArn
+      AmiType: !Ref AmiType
+      InstanceTypes: !Ref InstanceTypes
+      DiskSize: 20
+      Subnets: !Ref SubnetIds
+      RemoteAccess: 
+        Ec2SshKey: !Ref Ec2SshKey
+      ScalingConfig:
+        MinSize: !Ref MinSize
+        DesiredSize: !Ref DesiredSize
+        MaxSize: !Ref MaxSize
+      Labels:
+        Key1: Nodegroup
+        Key2: dev
+
+
+Outputs:
+  Arn:
+    Description: The Amazon Resource Name (ARN) associated with the managed node group.
+    Value: !GetAtt EKSNodegroup.Arn
+  ClusterName:
+    Description: The name of the cluster that the managed node group resides in.
+    Value: !GetAtt EKSNodegroup.ClusterName
+  NodegroupName:
+    Description: The name associated with an Amazon EKS managed node group.
+    Value: !GetAtt EKSNodegroup.NodegroupName

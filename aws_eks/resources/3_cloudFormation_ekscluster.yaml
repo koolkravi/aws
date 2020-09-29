@@ -1,0 +1,46 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Amazon EKS Cluster'
+Parameters:
+  RoleArn:
+    Type: String
+    Default: arn:aws:iam::770239628917:role/eksClusterRole-eksClusterRole-1WP3CBHY331MN
+    Description: RoleArn
+
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Default: sg-02db2e8207e8143a3
+    Description: Security Group Ids
+
+  SubnetIds:
+    Type: CommaDelimitedList
+    Default: subnet-0c64cd521f1b99fe4,subnet-0a55114cf202df088,subnet-00eca565a5ae026e1,subnet-0c12781233356d113
+    Description: Subnet Ids
+
+Resources:
+  eksCluster:
+    Type: 'AWS::EKS::Cluster'
+    Properties:
+      Name: eks-cluster
+      Version: '1.17'
+      RoleArn: !Ref RoleArn
+      ResourcesVpcConfig:
+        SecurityGroupIds: !Ref SecurityGroupIds
+        SubnetIds: !Ref SubnetIds
+
+Outputs:
+  Arn:
+    Description: The ARN of the cluster
+    Value: !GetAtt eksCluster.Arn
+  CertificateAuthorityData:
+    Description: The certificate-authority-data for your cluster
+    Value: !GetAtt eksCluster.CertificateAuthorityData
+  Endpoint:
+    Description: The endpoint for your Kubernetes API server
+    Value: !GetAtt eksCluster.Endpoint
+  ClusterSecurityGroupId:
+    Description: The cluster security group that was created by Amazon EKS for the cluster. Managed node groups use this security group for control plane to data plane communication
+    Value: !GetAtt eksCluster.ClusterSecurityGroupId
+  eksCluster:
+    Description:  The resource name
+    Value: !Ref eksCluster
