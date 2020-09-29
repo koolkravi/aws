@@ -20,9 +20,42 @@ ip-192-168-145-219.us-west-2.compute.internal   Ready    <none>   6m40s   v1.17.
 ip-192-168-205-137.us-west-2.compute.internal   Ready    <none>   6m48s   v1.17.11-eks-cfdc40   192.168.205.137   <none>        Amazon Linux 2   4.14.193-149.317.amzn2.x86_64   docker://19.3.6
 ```
 
-# 3. 
+# 3. Node group Cluster Auto scaler 
+
+```
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+serviceaccount/cluster-autoscaler created
+clusterrole.rbac.authorization.k8s.io/cluster-autoscaler created
+role.rbac.authorization.k8s.io/cluster-autoscaler created
+clusterrolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
+rolebinding.rbac.authorization.k8s.io/cluster-autoscaler created
+deployment.apps/cluster-autoscaler created
 
 
+$ kubectl -n kube-system annotate deployment.apps/cluster-autoscaler cluster-autoscaler.kubernetes.io/safe-to-evict="false"
+deployment.apps/cluster-autoscaler annotated
+
+$ kubectl -n kube-system edit deployment.apps/cluster-autoscaler
+deployment.apps/cluster-autoscaler edited
+
+$ kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.17.3
+deployment.apps/cluster-autoscaler image updated
+
+$ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
+
+I0929 23:47:05.413817       1 static_autoscaler.go:194] Starting main loop
+I0929 23:47:05.414113       1 utils.go:328] No pod using affinity / antiaffinity found in cluster, disabling affinity predicate for this loop
+I0929 23:47:05.414127       1 filter_out_schedulable.go:66] Filtering out schedulables
+I0929 23:47:05.414155       1 filter_out_schedulable.go:131] 0 other pods marked as unschedulable can be scheduled.
+I0929 23:47:05.414176       1 filter_out_schedulable.go:131] 0 other pods marked as unschedulable can be scheduled.
+I0929 23:47:05.414196       1 filter_out_schedulable.go:91] No schedulable pods
+I0929 23:47:05.414212       1 static_autoscaler.go:343] No unschedulable pods
+I0929 23:47:05.414223       1 static_autoscaler.go:390] Calculating unneeded nodes
+I0929 23:47:05.414237       1 pre_filtering_processor.go:66] Skipping ip-192-168-76-173.us-west-2.compute.internal - node group min size reached
+I0929 23:47:05.414244       1 pre_filtering_processor.go:66] Skipping ip-192-168-29-86.us-west-2.compute.internal - node group min size reached
+I0929 23:47:05.414318       1 static_autoscaler.go:439] Scale down status: unneededOnly=true lastScaleUpTime=2020-09-29 23:44:24.873747019 +0000 UTC m=+36.490797911 lastScaleDownDeleteTime=2020-09-29 23:44:24.873747122 +0000 UTC m=+36.490798007 lastScaleDownFailTime=2020-09-29 23:44:24.873747214 +0000 UTC m=+36.490798098 scaleDownForbidden=false isDeleteInProgress=false scaleDownInCooldown=true
+
+```
 
 
 # Others

@@ -8,7 +8,7 @@ Parameters:
     Description: Cluster Name
   NodeGroupRoleArn:
     Type: String
-    Default: arn:aws:iam::770239628917:role/eksWorkerNodeGroupRole-NodeInstanceRole-XRWMXWZT5275
+    Default: arn:aws:iam::770239628917:role/eksWorkerNodeGroupRole-NodeInstanceRole-1FNWY9OWEHATB
     Description: RoleArn
   AmiType:
     Type: String
