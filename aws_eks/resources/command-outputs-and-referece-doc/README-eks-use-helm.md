@@ -157,6 +157,15 @@ https://github.com/aws/eks-charts
 https://hub.helm.sh/charts?q=eks
 ```
 
+# 6. clean up
+
+```
+aws ecr delete-repository \
+    --repository-name artifact-test \
+    --force
+	
+eksctl delete cluster --name eks-cluster
+```
 
 
 
