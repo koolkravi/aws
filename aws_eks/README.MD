@@ -178,7 +178,6 @@ add below and replace <YOUR CLUSTER NAME> = eks-cluster
         - --balance-similar-node-groups
         - --skip-nodes-with-system-pods=false
 ```
-
 ```
 kubectl -n kube-system set image deployment.apps/cluster-autoscaler cluster-autoscaler=us.gcr.io/k8s-artifacts-prod/autoscaling/cluster-autoscaler:v1.17.3
 ```
@@ -190,7 +189,7 @@ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 
 # Step D. Clean Up
 
-## Step 11: Clean update-kubeconfig
+## Step 11: Delete resources using cloud formation stack
 
 Delete Stack eks-worker-node-group
 Delete Stack eksWorkerNodeGroupRole
@@ -201,7 +200,6 @@ Delete Stack eksClusterRole
 Delete Stack  eks-vpc
 
 # Some Commands
--------------------------------
 ```
 aws  eks --region us-west-2 update-kubeconfig --name eks-cluster
 kubectl get svc
@@ -222,8 +220,19 @@ aws --version //aws-cli/2.0.52 Python/3.7.7 Windows/10 exe/AMD64
 aws iam list-users
 aws-iam-authenticator help
 kubectl version
+
+kubectl get deployments -l k8s-app=kube-dns -n kube-system
+kubectl scale deployments/coredns --replicas=1 -n kube-system
+kubectl scale deployments/cluster-autoscaler --replicas=0 -n kube-system
+
+kubectl scale deployments/coredns --replicas=1 -n kube-system
+kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
 ```
 
+# Next
+## To update an existing node group : https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html
+## Getting started with eksctl : https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
+## https://aws.amazon.com/blogs/infrastructure-and-automation/using-aws-cloudformation-to-deploy-software-into-amazon-eks-clusters/
 
 # Ref: 
 - https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
@@ -254,8 +263,3 @@ kubectl version
 	kubectl get services -o wide
 	```
 	
-- TODO
-	```		
-	https://aws.amazon.com/blogs/infrastructure-and-automation/using-aws-cloudformation-to-deploy-software-into-amazon-eks-clusters/
-	Getting started with eksctl : https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
-	```

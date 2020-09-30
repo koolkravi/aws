@@ -57,6 +57,28 @@ I0929 23:47:05.414318       1 static_autoscaler.go:439] Scale down status: unnee
 
 ```
 
+# 4. 
+```
+$ kubectl get deployments -l k8s-app=kube-dns -n kube-system
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+coredns   1/1     1            1           96m
+
+
+$ kubectl scale deployments/coredns --replicas=2 -n kube-system
+deployment.apps/coredns scaled
+
+
+$ kubectl scale deployments/cluster-autoscaler --replicas=0 -n kube-system
+deployment.apps/cluster-autoscaler scaled
+
+$ kubectl scale deployments/coredns --replicas=1 -n kube-system
+deployment.apps/coredns scaled
+
+$ kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
+deployment.apps/cluster-autoscaler scaled
+
+
+```
 
 # Others
 ```
