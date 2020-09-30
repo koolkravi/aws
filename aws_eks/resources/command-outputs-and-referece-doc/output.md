@@ -217,7 +217,269 @@ $ eksctl delete cluster --name eks-cluster
 [Ôä╣]  waiting for stack "eksctl-eks-cluster-nodegroup-linux-nodes" to get deleted
 [Ôä╣]  will delete stack "eksctl-eks-cluster-cluster"
 [Ô£ö]  all cluster resources were deleted
+```
+
+# 7. helm
+```
+PS C:\windows\system32> choco install kubernetes-helm
+Chocolatey v0.10.15
+Installing the following packages:
+kubernetes-helm
+By installing you accept licenses for the packages.
+Progress: Downloading kubernetes-helm 3.3.4... 100%
+
+kubernetes-helm v3.3.4 [Approved]
+kubernetes-helm package files install completed. Performing other installation steps.
+The package kubernetes-helm wants to run 'chocolateyInstall.ps1'.
+Note: If you don't run this script, the installation will fail.
+Note: To confirm automatically next time, use '-y' or consider:
+choco feature enable -n allowGlobalConfirmation
+Do you want to run the script?([Y]es/[A]ll - yes to all/[N]o/[P]rint): yes
+
+Downloading kubernetes-helm 64 bit
+  from 'https://get.helm.sh/helm-v3.3.4-windows-amd64.zip'
+Progress: 100% - Completed download of C:\Users\ravi_kumar27\AppData\Local\Temp\chocolatey\kubernetes-helm\3.3.4\helm-v3.3.4-windows-amd64.zip (12.14 MB).
+Download of helm-v3.3.4-windows-amd64.zip (12.14 MB) completed.
+Hashes match.
+Extracting C:\Users\ravi_kumar27\AppData\Local\Temp\chocolatey\kubernetes-helm\3.3.4\helm-v3.3.4-windows-amd64.zip to C:\ProgramData\chocolatey\lib\kubernetes-helm\tools...
+C:\ProgramData\chocolatey\lib\kubernetes-helm\tools
+  kubernetes-helm may be able to be automatically uninstalled.
+ ShimGen has successfully created a shim for helm.exe
+ The install of kubernetes-helm was successful.
+  Software installed to 'C:\ProgramData\chocolatey\lib\kubernetes-helm\tools'
+
+Chocolatey installed 1/1 packages.
+ See the log for details (C:\ProgramData\chocolatey\logs\chocolatey.log).
+ 
+$ helm version
+version.BuildInfo{Version:"v3.3.4", GitCommit:"a61ce5633af99708171414353ed49547cf05013d", GitTreeState:"clean", GoVersion:"go1.14.9"}
+
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+"stable" has been added to your repositories
 
 
+$ helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "stable" chart repository
+Update Complete. ÔÄêHappy Helming!ÔÄê
+ 
+```
+```
+$ helm install stable/mysql --generate-name
+NAME: mysql-1601477868
+LAST DEPLOYED: Wed Sep 30 16:57:52 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+MySQL can be accessed via port 3306 on the following DNS name from within your cluster:
+mysql-1601477868.default.svc.cluster.local
+
+To get your root password run:
+
+    MYSQL_ROOT_PASSWORD=$(kubectl get secret --namespace default mysql-1601477868 -o jsonpath="{.data.mysql-root-password}" | base64 --decode; echo)
+
+To connect to your database:
+
+1. Run an Ubuntu pod that you can use as a client:
+
+    kubectl run -i --tty ubuntu --image=ubuntu:16.04 --restart=Never -- bash -il
+
+2. Install the mysql client:
+
+    $ apt-get update && apt-get install mysql-client -y
+
+3. Connect using the mysql cli, then provide your password:
+    $ mysql -h mysql-1601477868 -p
+
+To connect to your database directly from outside the K8s cluster:
+    MYSQL_HOST=127.0.0.1
+    MYSQL_PORT=3306
+
+    # Execute the following command to route the connection:
+    kubectl port-forward svc/mysql-1601477868 3306
+
+    mysql -h ${MYSQL_HOST} -P${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD}
+
+```
+```
+$ helm ls
+NAME                    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+mysql-1601477868        default         1               2020-09-30 16:57:52.2696219 +0200 CEST  deployed        mysql-1.6.7     5.7.30
+
+$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+mysql-1601477868-596599d757-n942v   1/1     Running   0          10m
+
+$ kubectl get deploy
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+mysql-1601477868   1/1     1            1           11m
+
+$ kubectl get svc
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+kubernetes         ClusterIP   10.100.0.1      <none>        443/TCP    36m
+mysql-1601477868   ClusterIP   10.100.126.25   <none>        3306/TCP   10m
+
+$ kubectl get secret --namespace default mysql-1601477868 -o jsonpath="{.data.mysql-root-password}" | base64 --decode; echo
+06pxOOm02E
+
+$ helm uninstall mysql-1601477868
+release "mysql-1601477868" uninstalled
+
+$ helm status mysql-1601477868
+Error: release: not found
+
+```
+```
+$ aws ecr create-repository \
+>      --repository-name artifact-test \
+>      --region us-west-2
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:us-west-2:770239628917:repository/artifact-test",
+        "registryId": "770239628917",
+        "repositoryName": "artifact-test",
+        "repositoryUri": "770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test",
+        "createdAt": "2020-09-30T17:16:26+02:00",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}
+
+$ aws ecr get-login-password \
+aws ecr get-login-password \
+     --region us-west-2 | helm registry login \
+     --username AWS \
+     --password-stdin 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test
+Login succeeded
+
+$ helm chart save . 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+ref:     770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+digest:  671d3e7474a7a6c0a8d78770e47e3355080556525d44ad5bb3141aff654ac472
+size:    1.4 KiB
+name:    mychart
+version: 0.1.0
+mychart: saved
+
+$ helm chart list
+REF                                                             NAME    VERSION DIGEST  SIZE    CREATED
+770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-tes...    mychart 0.1.0   671d3e7 1.4 KiB 28 seconds
+mychart:0.1.0 
+
+$ helm chart push 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+The push refers to repository [770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test]
+ref:     770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+digest:  671d3e7474a7a6c0a8d78770e47e3355080556525d44ad5bb3141aff654ac472
+size:    1.4 KiB
+name:    mychart
+version: 0.1.0
+mychart: pushed to remote (1 layer, 1.4 KiB total)
+
+$ aws ecr describe-images \
+>      --repository-name artifact-test \
+>      --region us-west-2
+{
+    "imageDetails": [
+        {
+            "registryId": "770239628917",
+            "repositoryName": "artifact-test",
+            "imageDigest": "sha256:671d3e7474a7a6c0a8d78770e47e3355080556525d44ad5bb3141aff654ac472",
+            "imageTags": [
+                "mychart"
+            ],
+            "imageSizeInBytes": 1587,
+            "imagePushedAt": "2020-09-30T17:49:07+02:00",
+            "imageManifestMediaType": "application/vnd.oci.image.manifest.v1+json",
+            "artifactMediaType": "application/vnd.cncf.helm.config.v1+json"
+        }
+    ]
+}
+
+```
+
+```
+$ aws ecr describe-repositories
+{
+    "repositories": [
+        {
+            "repositoryArn": "arn:aws:ecr:us-west-2:770239628917:repository/artifact-test",
+            "registryId": "770239628917",
+            "repositoryName": "artifact-test",
+            "repositoryUri": "770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test",
+            "createdAt": "2020-09-30T17:16:26+02:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        }
+    ]
+}
+
+
+$ aws ecr describe-images --repository-name artifact-test
+{
+    "imageDetails": [
+        {
+            "registryId": "770239628917",
+            "repositoryName": "artifact-test",
+            "imageDigest": "sha256:671d3e7474a7a6c0a8d78770e47e3355080556525d44ad5bb3141aff654ac472",
+            "imageTags": [
+                "mychart"
+            ],
+            "imageSizeInBytes": 1587,
+            "imagePushedAt": "2020-09-30T17:49:07+02:00",
+            "imageManifestMediaType": "application/vnd.oci.image.manifest.v1+json",
+            "artifactMediaType": "application/vnd.cncf.helm.config.v1+json"
+        }
+    ]
+}
+
+$ helm chart pull 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+mychart: Pulling from 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test
+ref:     770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+digest:  671d3e7474a7a6c0a8d78770e47e3355080556525d44ad5bb3141aff654ac472
+size:    1.4 KiB
+name:    mychart
+version: 0.1.0
+Status: Downloaded newer chart for 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+
+$ helm chart export 770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart --destination ./charts
+ref:     770239628917.dkr.ecr.us-west-2.amazonaws.com/artifact-test:mychart
+digest:  671d3e7474a7a6c0a8d78770e47e3355080556525d44ad5bb3141aff654ac472
+size:    1.4 KiB
+name:    mychart
+version: 0.1.0
+Exported chart to charts\mychart/
+
+$ cd charts/
+
+$ helm install ecr-chart-demo ./mychart
+NAME: ecr-chart-demo
+LAST DEPLOYED: Wed Sep 30 18:14:21 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
+$ helm get manifest ecr-chart-demo
+---
+# Source: mychart/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mychart-configmap
+data:
+  myvalue: "Hello World"
+
+$ helm uninstall ecr-chart-demo
+release "ecr-chart-demo" uninstalled
 
 ```

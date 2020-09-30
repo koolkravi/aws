@@ -34,7 +34,7 @@
               }
             }
           ],
-          "InstanceType": "m5.large",
+          "InstanceType": "t3.small",
           "KeyName": "ravieksawskey",
           "MetadataOptions": {
             "HttpPutResponseHopLimit": 2,
