@@ -77,10 +77,9 @@ deployment.apps/coredns scaled
 $ kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
 deployment.apps/cluster-autoscaler scaled
 
-
 ```
 
-# Others
+# 5. Others
 ```
 --------------------------------
 $ kubectl get pods -o wide
@@ -136,4 +135,89 @@ $ kubectl get nodes -o wide
 NAME                                           STATUS   ROLES    AGE    VERSION              INTERNAL-IP      EXTERNAL-IP    OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
 ip-192-168-222-60.us-west-2.compute.internal   Ready    <none>   4m8s   v1.17.9-eks-4c6976   192.168.222.60   <none>         Amazon Linux 2   4.14.193-149.317.amzn2.x86_64   docker://19.3.6
 ip-192-168-46-219.us-west-2.compute.internal   Ready    <none>   4m7s   v1.17.9-eks-4c6976   192.168.46.219   18.237.87.89   Amazon Linux 2   4.14.193-149.317.amzn2.x86_64   docker://19.3.6
+```
+
+
+# 6. eksctl
+
+```
+Ravi_Kumar27@CHDSEZ275158L MINGW64 /d/my_data4/2.study_material/aws/aws_eks/resources/command-outputs-and-referece-doc (master)
+$ eksctl create cluster \
+> --name eks-cluster \
+> --version 1.17 \
+> --region us-west-2 \
+> --nodegroup-name linux-nodes \
+> --nodes 3 \
+> --nodes-min 1 \
+> --nodes-max 4 \
+> --ssh-access \
+> --ssh-public-key ravieksawskey \
+> --managed
+[Ôä╣]  eksctl version 0.28.1
+[Ôä╣]  using region us-west-2
+[Ôä╣]  setting availability zones to [us-west-2b us-west-2c us-west-2a]
+[Ôä╣]  subnets for us-west-2b - public:192.168.0.0/19 private:192.168.96.0/19
+[Ôä╣]  subnets for us-west-2c - public:192.168.32.0/19 private:192.168.128.0/19
+[Ôä╣]  subnets for us-west-2a - public:192.168.64.0/19 private:192.168.160.0/19
+[Ôä╣]  using EC2 key pair %!!(MISSING)q(*string=<nil>)
+[Ôä╣]  using Kubernetes version 1.17
+[Ôä╣]  creating EKS cluster "eks-cluster" in "us-west-2" region with managed nodes
+[Ôä╣]  will create 2 separate CloudFormation stacks for cluster itself and the initial managed nodegroup
+[Ôä╣]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=us-west-2 --cluster=eks-cluster'
+[Ôä╣]  CloudWatch logging will not be enabled for cluster "eks-cluster" in "us-west-2"
+[Ôä╣]  you can enable it with 'eksctl utils update-cluster-logging --region=us-west-2 --cluster=eks-cluster'
+[Ôä╣]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "eks-cluster" in "us-west-2"
+[Ôä╣]  2 sequential tasks: { create cluster control plane "eks-cluster", 2 sequential sub-tasks: { no tasks, create managed nodegroup "linux-nodes" } }
+[Ôä╣]  building cluster stack "eksctl-eks-cluster-cluster"
+[Ôä╣]  deploying stack "eksctl-eks-cluster-cluster"
+[Ôä╣]  building managed nodegroup stack "eksctl-eks-cluster-nodegroup-linux-nodes"
+[Ôä╣]  deploying stack "eksctl-eks-cluster-nodegroup-linux-nodes"
+[Ôä╣]  waiting for the control plane availability...
+[Ô£ö]  saved kubeconfig as "C:\\Users\\ravi_kumar27/.kube/config"
+[Ôä╣]  no tasks
+[Ô£ö]  all EKS cluster resources for "eks-cluster" have been created
+[Ôä╣]  nodegroup "linux-nodes" has 3 node(s)
+[Ôä╣]  node "ip-192-168-19-83.us-west-2.compute.internal" is ready
+[Ôä╣]  node "ip-192-168-63-152.us-west-2.compute.internal" is ready
+[Ôä╣]  node "ip-192-168-68-105.us-west-2.compute.internal" is ready
+[Ôä╣]  waiting for at least 1 node(s) to become ready in "linux-nodes"
+[Ôä╣]  nodegroup "linux-nodes" has 3 node(s)
+[Ôä╣]  node "ip-192-168-19-83.us-west-2.compute.internal" is ready
+[Ôä╣]  node "ip-192-168-63-152.us-west-2.compute.internal" is ready
+[Ôä╣]  node "ip-192-168-68-105.us-west-2.compute.internal" is ready
+[Ôä╣]  kubectl command should work with "C:\\Users\\ravi_kumar27/.kube/config", try 'kubectl get nodes'
+[Ô£ö]  EKS cluster "eks-cluster" in "us-west-2" region is ready
+
+
+$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.100.0.1   <none>        443/TCP   14m
+
+$ kubectl get nodes -o wide
+NAME                                           STATUS   ROLES    AGE   VERSION               INTERNAL-IP      EXTERNAL-IP      OS-IMAGE         KERNEL-VERSION                  CONTAINER-RUNTIME
+ip-192-168-19-83.us-west-2.compute.internal    Ready    <none>   10m   v1.17.11-eks-cfdc40   192.168.19.83    52.37.100.19     Amazon Linux 2   4.14.193-149.317.amzn2.x86_64   docker://19.3.6
+ip-192-168-63-152.us-west-2.compute.internal   Ready    <none>   10m   v1.17.11-eks-cfdc40   192.168.63.152   18.237.234.65    Amazon Linux 2   4.14.193-149.317.amzn2.x86_64   docker://19.3.6
+ip-192-168-68-105.us-west-2.compute.internal   Ready    <none>   10m   v1.17.11-eks-cfdc40   192.168.68.105   54.202.119.234   Amazon Linux 2   4.14.193-149.317.amzn2.x86_64   docker://19.3.6
+
+
+$ kubectl get svc --all-namespaces
+NAMESPACE     NAME         TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)         AGE
+default       kubernetes   ClusterIP   10.100.0.1    <none>        443/TCP         27m
+kube-system   kube-dns     ClusterIP   10.100.0.10   <none>        53/UDP,53/TCP   27m
+
+$ eksctl delete cluster --name eks-cluster
+[Ôä╣]  eksctl version 0.28.1
+[Ôä╣]  using region us-west-2
+[Ôä╣]  deleting EKS cluster "eks-cluster"
+[Ôä╣]  deleted 0 Fargate profile(s)
+[Ô£ö]  kubeconfig has been updated
+[Ôä╣]  cleaning up AWS load balancers created by Kubernetes objects of Kind Service or Ingress
+[Ôä╣]  2 sequential tasks: { delete nodegroup "linux-nodes", delete cluster control plane "eks-cluster" [async] }
+[Ôä╣]  will delete stack "eksctl-eks-cluster-nodegroup-linux-nodes"
+[Ôä╣]  waiting for stack "eksctl-eks-cluster-nodegroup-linux-nodes" to get deleted
+[Ôä╣]  will delete stack "eksctl-eks-cluster-cluster"
+[Ô£ö]  all cluster resources were deleted
+
+
+
 ```

@@ -233,7 +233,12 @@ kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
 # Ref: 
 - https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
 - CLoud formation reference: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html
-- Cluster Autoscaler: https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html
+- Cluster Autoscaler: 
+	```
+	# https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html
+	# How can I set up Cluster Autoscaler on Amazon EKS?
+	  https://aws.amazon.com/premiumsupport/knowledge-center/eks-cluster-autoscaler-setup/
+	```
 - Others
 ```
 	https://www.youtube.com/watch?v=aZd0UolVwD4
@@ -260,7 +265,7 @@ kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
 	```
 - Next
 	```
+	## Getting started with eksctl : Done - Refer resources\command-outputs-and-referece-doc\REAMME-using-eksctl.txt
 	## To update an existing node group : https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html
-	## Getting started with eksctl : https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
 	## https://aws.amazon.com/blogs/infrastructure-and-automation/using-aws-cloudformation-to-deploy-software-into-amazon-eks-clusters/
 	```
