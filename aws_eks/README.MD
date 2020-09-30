@@ -99,11 +99,13 @@ NodeInstanceRole		: Outputs value from stack  (e.g. arn:aws:iam::770239628917:ro
 CloudFormation Template
 Stack name	: eks-worker-node-group
 
+```
 Update below cloudFormation template 
 for ClusterName= eks-cluster from step 3
 for NodeGroupRoleArn with value of NodeInstanceRole from step 5
 for SubnetIds withe values form step 2
 and upadate Ec2SshKey value with your ssh key
+```
 
 ```
 5_cloudFormation_eksnodegroup.yaml
