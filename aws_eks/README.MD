@@ -229,10 +229,6 @@ kubectl scale deployments/coredns --replicas=1 -n kube-system
 kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
 ```
 
-# Next
-## To update an existing node group : https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html
-## Getting started with eksctl : https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
-## https://aws.amazon.com/blogs/infrastructure-and-automation/using-aws-cloudformation-to-deploy-software-into-amazon-eks-clusters/
 
 # Ref: 
 - https://docs.aws.amazon.com/eks/latest/userguide/getting-started-console.html
@@ -262,4 +258,9 @@ kubectl scale deployments/cluster-autoscaler --replicas=1 -n kube-system
 	kubectl apply -f https://raw.githubusercontent.com/kubernetes/kubernetes/v1.10.3/examples/guestbook-go/guestbook-service.json
 	kubectl get services -o wide
 	```
-	
+- Next
+	```
+	## To update an existing node group : https://docs.aws.amazon.com/eks/latest/userguide/update-stack.html
+	## Getting started with eksctl : https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
+	## https://aws.amazon.com/blogs/infrastructure-and-automation/using-aws-cloudformation-to-deploy-software-into-amazon-eks-clusters/
+	```
