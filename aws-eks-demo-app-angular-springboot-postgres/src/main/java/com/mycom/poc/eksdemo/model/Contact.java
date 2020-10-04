@@ -12,7 +12,7 @@ public class Contact {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private String id;
+	private Integer id;
 	private String name;
 	private String email;
 	private String phone;
@@ -22,7 +22,7 @@ public class Contact {
 
 	}
 
-	public Contact(String id, String name, String email, String phone) {
+	public Contact(Integer id, String name, String email, String phone) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
@@ -34,11 +34,11 @@ public class Contact {
 		this.phone = phone;
 	}
 
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

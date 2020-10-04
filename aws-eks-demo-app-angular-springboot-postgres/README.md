@@ -96,7 +96,7 @@ kubectl create -f 5-service.yaml
 ## Step 1.6. combined yaml
 
 ```
-**kubectl create -f resources/postgres.yaml**
+kubectl create -f resources/postgres.yaml
 kubectl get pods
 ```
 
@@ -109,12 +109,52 @@ Name : **hostname-config**
 kubectl create configmap hostname-config --from-literal=postgres_host=$(kubectl get svc postgres -o jsonpath="{.spec.clusterIP}")
 ```
 
+## Test
+```
+POD=$(kubectl get pods -l app=postgres | grep Running | grep 1/1 | awk '{print $1}')
+echo "${POD}"
+
+kubectl exec -it postgres-statefulset-0 -- /bin/bash
+
+#psql -U Username DatabaseName 
+psql -U admin pocdb 
+```
+
+```
+	\list or \l									: list all databases
+	\dt											: list all tables in the current database
+	\connect database_name or \c database_name 	: To switch databases
+	\dn 										: list of all schemas (namespaces)
+```
+
 # Step 2: Deploy Spring Boot Application
 
-## Step 2.1. Build Sample Java App and create Jar
+## Step 2.1. Create ECR Repository and authenticate Docker
+
+### a. Create ECR Registory
+
+Name : **spring-boot-postgres-poc**
+```
+aws ecr create-repository \
+     --repository-name  spring-boot-postgres-poc \
+     --region us-west-2
+```
+
+### b. Authenticate Docker to an Amazon ECR registry with get-login-password 
+Repository name :  spring-boot-postgres-poc
+URI : XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/spring-boot-postgres-poc
+AWS ACCOUNT ID= XXXXXXXXXXXX
+
+```
+aws ecr get-login-password \
+     --region us-west-2 | docker login \
+     --username AWS \
+     --password-stdin XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/spring-boot-postgres-poc
+```
+
+## Step 2.2. Build Sample Java App and create Jar
 
 Artifact : eks-demo-0.0.1-SNAPSHOT.jar
-
 ```
 start.spring.io 
 Dependencies
@@ -124,59 +164,44 @@ Dependencies
 	Spring Data JPA	
 ```
 
-
 ```
-./mvnw -DskipTests package
-```
-
-## Step 2.2. Create ECR Repository and authenticate Docker
-
-### a. Create ECR Registory
-```
-aws ecr create-repository \
-     --repository-name artifact-poc \
-     --region us-west-2
-```
-
-### b. Authenticate Docker to an Amazon ECR registry with get-login-password 
-Repository name : artifact-poc
-URI : XXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/artifact-poc
-
-```
-aws ecr get-login-password \
-     --region us-west-2 | docker login \
-     --username AWS \
-     --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com/artifact-poc
+./mvnw -DskipTests clean package
 ```
 
 ## Step 2.3. Build and Push Docker Image to ECR 
 
 Dockerfile
 ```
-docker build -t XXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/artifact-poc/spring-boot-postgres-on-k8s:v0.0.1 .
-docker push XXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/artifact-poc/spring-boot-postgres-on-k8s:v0.0.1
+docker build -t XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/spring-boot-postgres-poc:v0.0.3 .
+docker push  XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/spring-boot-postgres-poc:v0.0.3
 ```
 
 ## Step 2.4. Deploy into k8s
+
+Service and Deployment name:  **spring-boot-postgres-poc**
 
 ```
 Update yaml file with below
 hostname-confige : hostname-config value from Step 1.7. (e.g. hostname-config, postgres_host )
 postgres_host	 : postgres_host value from Step 1.7. (e.g. postgres_host, POSTGRES_USER, POSTGRES_PASSWORD)
-XXXXXXXXX 		 :  with value from Step 2.2 b e.g.(XXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/artifact-poc)
+XXXXXXXXXXXX 		 :  with value from Step 2.2 b e.g.(XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/spring-boot-postgres-poc:v0.0.1)
 ```
 
 ```
-**kubectl apply -f spring-boot-app.yml**
+kubectl apply -f resources/spring-boot-app.yaml
+```
 
-#kubectl expose deployment spring-boot-postgres-poc --type=LoadBalancer --port=8080
+## combined 2.2, 2.3, 2.4 
 
+```
+./deploy.sh
 ```
 
 ## Step 2.5 Test
 ```
 kubectl get svc spring-boot-postgres-poc
-http://<External IP Address>:8080
+http://<External IP Address>:8080   (e.g. a91e1a89bd5f74a91ab8f3d0b7a3feac-469189436.us-west-2.elb.amazonaws.com:8080)
+
 ```
 
 ## Step 2.6 Scale
@@ -186,7 +211,7 @@ kubectl scale deployment spring-boot-postgres-poc --replicas=3
 
 ## Step 2.7. Updating your application
 ```
-kubectl set image deployment/spring-boot-postgres-poc spring-boot-postgres-poc=<your Docker Hub account>/spring-boot-postgres-on-k8s:v2
+kubectl set image deployment/spring-boot-postgres-poc spring-boot-postgres-poc=<your Docker Hub account>/ spring-boot-postgres-poc:v2
 
 ```
 ## Next : 
@@ -195,18 +220,16 @@ kubectl set image deployment/spring-boot-postgres-poc spring-boot-postgres-poc=<
 ## Step 3: Clean UP: 
 
 ```
-kubectl delete -f specs/spring-boot-app.yml
+kubectl delete -f resources/spring-boot-app.yaml
 #kubectl delete svc spring-boot-postgres-poc
 kubectl delete cm hostname-config
 
 kubectl delete -f resources/postgres.yaml
 
 aws ecr delete-repository \
-    --repository-name artifact-poc \
+    --repository-name  spring-boot-postgres-poc \
     --force
-	
 ```
-
 
 # Some commnads
 ```
@@ -228,6 +251,15 @@ kubectl get pods
 aws ecr describe-repositories
 aws ecr describe-images --repository-name artifact-test
 
+kubectl expose deployment spring-boot-postgres-poc --type=LoadBalancer --port=8080
+
+kubectl exec postgres-statefulset-0 ls
+
+POD=$(kubectl get svc -l app=spring-boot-postgres-poc | grep LoadBalancer | awk '{print $4}')
+echo "${POD}"
+
+POD=$(kubectl get pods -l app=spring-boot-postgres-poc | grep Running | grep 1/1 | awk '{print $1}')
+
 ```
 
 
@@ -235,7 +267,7 @@ aws ecr describe-images --repository-name artifact-test
 
 ## Postgres
 ### Setting up PostgreSQL DB on K8S : https://medium.com/@suyashmohan/setting-up-postgresql-database-on-kubernetes-24a2a192e962
-### spring-boot-postgres-on-k8s: https://github.com/mkjelland/spring-boot-postgres-on-k8s-sample
+###  spring-boot-postgres-poc: https://github.com/mkjelland/ spring-boot-postgres-poc-sample
 
 ## Spring Boot
 ### Deploying Angular + Spring Boot + MangoDB Application in Microsoft Azure Cloud
@@ -272,6 +304,31 @@ https://www.callicoder.com/deploy-spring-mysql-react-nginx-kubernetes-persistent
 ## Spring Log:  https://mkyong.com/spring-boot/spring-boot-slf4j-logging-example/
 
 ## on GKS : https://medium.com/javarevisited/kubernetes-step-by-step-with-spring-boot-docker-gke-35e9481f6d5f
+
+## POSTGRES DB 
+```
+manual: https://www.postgresql.org/docs/current/app-psql.html
+ref: https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql
+
+kubectl exec -it postgres-statefulset-0 -- /bin/bash
+
+#psql -U Username DatabaseName 
+psql -U admin postgres 
+
+	\list or \l									: list all databases
+	\dt											: list all tables in the current database
+	\connect database_name or \c database_name 	: To switch databases
+	\dn 
+	
+create DB
+CREATE DATABASE postgres1
+CREATE DATABASE foo;
+ \connect foo;
+CREATE SCHEMA ekspoc_api_dev
+
+SELECT * FROM information_schema.tables
+SELECT * FROM information_schema.columns WHERE table_schema = 'ekspoc_api_dev' AND table_name = 'TEMP';
+```
 
 ## Reference Documentation
 For further reference, please consider the following sections:

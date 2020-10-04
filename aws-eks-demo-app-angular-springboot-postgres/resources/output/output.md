@@ -129,5 +129,9 @@ NAME              DATA   AGE
 hostname-config   1      44s
 postgres-config   3      4m5s
 
+$ kubectl get svc spring-boot-postgres-poc
+NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP                                                              PORT(S)          AGE
+spring-boot-postgres-poc   LoadBalancer   10.100.97.127   a91e1a89bd5f74a91ab8f3d0b7a3feac-469189436.us-west-2.elb.amazonaws.com   8000:32061/TCP   22s
+
 
 ```

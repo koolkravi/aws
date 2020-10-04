@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <header>
-	<title>EKS DEMO</title>
+	<title>EKS POC </title>
 </header>
 <body>
-	<tr th:if="${value == null}">
-		<div>No value saved</div>
-	</tr>
-	<tr th:if="${value != null}">
-		<div th:text="${value}"></div>
-	</tr>
+	<table>
+		<tr th:if="${value == null}">
+			<div>No value saved</div>
+		</tr>	
+		<tr th:if="${value != null}">
+			<div th:text="${value}"></div>		
+		</tr>	
+	<table>	
+	</br></br>
+	<HR>
 
 	<form method="post" action="/save" class="form-actions">
-		<input type="text" name="name" /> 
-		<input type="text" name="email" /> 
-		<input type="text" name="phone" /> 
+		Name: <input type="text" name="name" /> </br>
+		Email: <input type="text" name="email" /> </br>
+		Phone <input type="text" name="phone" /> </br>
 		<input type="submit" value="Save Contact" />
 	</form>
 </body>
