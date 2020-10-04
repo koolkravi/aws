@@ -16,7 +16,7 @@ AWS Region: US West (Oregon)us-west-2
 ## Step 1: Create IAM role for EKS Cluster - AmazonEKSClusterPolicy
 
 CloudFormation Template
-Stack name: eksClusterRole
+Stack name: **eksClusterRole**
 
 ```
 1_cloudFormation_eksClusterRole.yaml
@@ -28,7 +28,7 @@ RoleArn		:  Outputs value from stack  (e.g. arn:aws:iam::770239628917:role/eksCl
 ## Step 2: Create Dedicated VPC for the EKS Cluster
 https://amazon-eks.s3.us-west-2.amazonaws.com/cloudformation/2020-08-12/amazon-eks-vpc-private-subnets.yaml
 
-Stack name: eks-vpc
+Stack name: **eks-vpc**
 ```
 2_cloudFormation_amazon-eks-vpc-private-subnets.yaml
 ```
@@ -41,7 +41,7 @@ VpcId		:	Outputs value from stack (e.g. vpc-01a43230808dac879)
 ## Step 3: Create EKS Cluster
 
 CloudFormation Template
-Stack name	: eks-cluster
+Stack name	: **eks-cluster**
 Cluster name 	: eks-cluster
 
 ```
@@ -81,7 +81,7 @@ kubectl get svc
 
 ## Step 5: Create IAM Role for EKS Worker Nodes
 CloudFormation Template
-Stack name		: eksWorkerNodeGroupRole
+Stack name		: **eksWorkerNodeGroupRole**
 
 AmazonEKS_CNI_Policy
 AmazonEKSWorkerNodePolicy
@@ -97,7 +97,7 @@ NodeInstanceRole		: Outputs value from stack  (e.g. arn:aws:iam::770239628917:ro
 ## Step 6: Create Worker nodes
 
 CloudFormation Template
-Stack name	: eks-worker-node-group
+Stack name	: **eks-worker-node-group**
 
 ```
 Update below cloudFormation template 
@@ -193,10 +193,10 @@ kubectl -n kube-system logs -f deployment.apps/cluster-autoscaler
 
 ## Step 11: Delete resources using cloud formation stack
 
-Delete Stack eks-worker-node-group
+Delete Stack **eks-worker-node-group**
 Delete Stack eksWorkerNodeGroupRole
 
-Delete Stack eks-cluster
+Delete Stack **eks-cluster**
 Delete Stack eksClusterRole
 
 Delete Stack  eks-vpc

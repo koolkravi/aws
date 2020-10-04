@@ -96,14 +96,14 @@ kubectl create -f 5-service.yaml
 ## Step 1.6. combined yaml
 
 ```
-kubectl create -f resources/postgres.yaml
+**kubectl create -f resources/postgres.yaml**
 kubectl get pods
 ```
 
 ## Step 1.7. Create a config map with the hostname of Postgres
 
 This will be used as environment variable in springboot yaml file.
-Name : hostname-config
+Name : **hostname-config**
 
 ```
 kubectl create configmap hostname-config --from-literal=postgres_host=$(kubectl get svc postgres -o jsonpath="{.spec.clusterIP}")
@@ -114,6 +114,7 @@ kubectl create configmap hostname-config --from-literal=postgres_host=$(kubectl 
 ## Step 2.1. Build Sample Java App and create Jar
 
 Artifact : eks-demo-0.0.1-SNAPSHOT.jar
+
 ```
 start.spring.io 
 Dependencies
@@ -166,7 +167,7 @@ XXXXXXXXX 		 :  with value from Step 2.2 b e.g.(XXXXXXXXX.dkr.ecr.us-west-2.amaz
 ```
 
 ```
-kubectl apply -f spring-boot-app.yml
+**kubectl apply -f spring-boot-app.yml**
 
 #kubectl expose deployment spring-boot-postgres-poc --type=LoadBalancer --port=8080
 
@@ -195,7 +196,7 @@ kubectl set image deployment/spring-boot-postgres-poc spring-boot-postgres-poc=<
 
 ```
 kubectl delete -f specs/spring-boot-app.yml
-kubectl delete svc spring-boot-postgres-poc
+#kubectl delete svc spring-boot-postgres-poc
 kubectl delete cm hostname-config
 
 kubectl delete -f resources/postgres.yaml
@@ -291,3 +292,6 @@ The following guides illustrate how to use some features concretely:
 * [Handling Form Submission](https://spring.io/guides/gs/handling-form-submission/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
 
+
+# Next :
+## docker app build and deploy usimg yaml
