@@ -1,32 +1,48 @@
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: spring-boot-postgres-sample
+  name:  spring-boot-postgres-poc
   namespace: default
 spec:
   replicas: 1
   template:
     metadata:
-      name: spring-boot-postgres-sample
+      name:  spring-boot-postgres-poc
       labels:
-        app: spring-boot-postgres-sample
+        app:  spring-boot-postgres-poc
     spec:
       containers:
-      - name: spring-boot-postgres-sample
+      - name:  spring-boot-postgres-poc
         env:
           - name: POSTGRES_USER
             valueFrom:
               configMapKeyRef:
                 name: postgres-config
-                key: postgres_user
+                key: POSTGRES_USER
           - name: POSTGRES_PASSWORD
             valueFrom:
               configMapKeyRef:
                 name: postgres-config
-                key: postgres_password
+                key: POSTGRES_PASSWORD
           - name: POSTGRES_HOST
             valueFrom:
               configMapKeyRef:
                 name: hostname-config
                 key: postgres_host
-        image: <your Docker Hub account>/spring-boot-postgres-on-k8s:v1
+        image: XXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/artifact-poc/spring-boot-postgres-on-k8s:v0.0.1
+
+---
+apiVersion: v1  
+kind: Service  
+metadata:  
+  name: spring-boot-postgres-poc
+  labels:  
+    app: spring-boot-postgres-poc
+spec:  
+  selector:  
+    app: spring-boot-postgres-poc
+  ports:  
+    - name: http  
+      port: 8000      
+  type: LoadBalancer  
