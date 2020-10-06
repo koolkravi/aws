@@ -236,7 +236,7 @@ Angular CLI: 10.1.4
   ```
   Name : eks-angular-poc
 
-aws ecr create-repository \
+  aws ecr create-repository \
 	 --repository-name  eks-angular-poc \
 	 --region us-west-2
   ```
@@ -246,7 +246,7 @@ aws ecr create-repository \
   Repository name : eks-angular-poc URI : XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc 
   AWS ACCOUNT ID=XXXXXXXXXXXX
 
-aws ecr get-login-password \
+  aws ecr get-login-password \
 	 --region us-west-2 | docker login \
 	 --username AWS \
 	 --password-stdin XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc
@@ -351,7 +351,6 @@ POD=$(kubectl get svc -l app=spring-boot-postgres-poc | grep LoadBalancer | awk 
 echo "${POD}"
 
 POD=$(kubectl get pods -l app=spring-boot-postgres-poc | grep Running | grep 1/1 | awk '{print $1}')
-
 ```
 
 
@@ -394,13 +393,8 @@ https://developer.okta.com/blog/2019/04/01/spring-boot-microservices-with-kubern
 
 ## Where is the Postgres username/password being created in this Dockerfile? : https://stackoverflow.com/questions/40599116/where-is-the-postgres-username-password-being-created-in-this-dockerfile
 
-
 ## Developing and deploying Spring Boot microservices on Kubernetes (Freemarker+Spring boot+MongoDB)
 https://learnk8s.io/spring-boot-kubernetes-guide
-
-
-
-
 
 ## Deploying a full-stack Spring boot, Mysql, and React app on Kubernetes with Persistent Volumes and Secrets
 https://www.callicoder.com/deploy-spring-mysql-react-nginx-kubernetes-persistent-volume-secret/
