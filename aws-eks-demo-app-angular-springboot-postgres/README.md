@@ -212,14 +212,106 @@ kubectl scale deployment spring-boot-postgres-poc --replicas=3
 ## Step 2.7. Updating your application
 ```
 kubectl set image deployment/spring-boot-postgres-poc spring-boot-postgres-poc=<your Docker Hub account>/ spring-boot-postgres-poc:v2
+```
+
+# Step 3: Deploy Angular 
+
+## Pre-requisite  - [See Pre-requisit here](https://github.com/koolkravi/website-platground/edit/master/frontend/angular/README.md)
 
 ```
-## Next : 
-## use horizontal pod scaler
+$ node --version
+v12.18.4
 
-## Step 3: Clean UP: 
+$ npm --version
+6.14.6
+```
 
 ```
+$ npm install -g @angular/cli
+$ ng v
+Angular CLI: 10.1.4
+```
+
+- Create ECR Registory
+  ```
+  Name : eks-angular-poc
+
+aws ecr create-repository \
+	 --repository-name  eks-angular-poc \
+	 --region us-west-2
+  ```
+
+- Authenticate Docker to an Amazon ECR registry with get-login-password
+  ```
+  Repository name : eks-angular-poc URI : XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc 
+  AWS ACCOUNT ID=XXXXXXXXXXXX
+
+aws ecr get-login-password \
+	 --region us-west-2 | docker login \
+	 --username AWS \
+	 --password-stdin XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc
+  ```
+	
+## Step 3.1. Create an Angular application
+
+```
+cd eks-demo-frontend-angular
+
+ng new eks-demo
+cd eks-demo
+
+ng serve --open
+
+http://localhost:4200/
+```
+## Step 3.2. Create custom Nginx config
+```
+mkdir nginx
+touch nginx/custom-nginx.conf
+```
+
+## Step 3.3. Create a multistage docker file for angular
+```
+Ref: https://nodejs.org/en/docs/guides/nodejs-docker-webapp/
+touch .dockerignore
+
+Dockerfile
+```
+
+## Step 3.4 Build and Push Docker Angular app Image to ECR
+
+```
+docker build -t XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc:v0.0.1 .
+docker push  XXXXXXXXXXXX.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc:v0.0.1
+```
+
+## Step 3.5 Deploy Angular app into k8s
+
+```
+kubectl apply -f manifest/angular-app.yaml
+```
+
+### note : 
+```
+You can create a normal service(ClusterIP instead of load balancer ) to access the application internally or  you can use this service in ingress to expose it to some domain
+```
+
+## Step 3.6. test
+```
+kubectl get svc spring-boot-postgres-poc
+http://<External IP Address>   (e.g. a91e1a89bd5f74a91ab8f3d0b7a3feac-469189436.us-west-2.elb.amazonaws.com)
+```
+
+
+
+# Step 4: Clean UP: 
+```
+kubectl delete -f eks-demo-frontend-angular/eks-demo/manifest/angular-app.yaml
+
+aws ecr delete-repository \
+    --repository-name  eks-angular-poc \
+    --force
+
 kubectl delete -f resources/spring-boot-app.yaml
 #kubectl delete svc spring-boot-postgres-poc
 kubectl delete cm hostname-config
@@ -271,11 +363,31 @@ POD=$(kubectl get pods -l app=spring-boot-postgres-poc | grep Running | grep 1/1
 
 ## Spring Boot
 ### Deploying Angular + Spring Boot + MangoDB Application in Microsoft Azure Cloud
-PART 1 : Spring Boot and Angular web application (https://medium.com/@raghavendra.pes/building-web-application-with-spring-boot-and-angular-853aed3ecfea)
+```
+PART 1 : Spring Boot and Angular web application https://medium.com/@raghavendra.pes/building-web-application-with-spring-boot-and-angular-853aed3ecfea)
+https://github.com/raghav141988/contacts/tree/contacts-base
 https://medium.com/@raghavendra.pes/kubernetes-deploying-angular-spring-boot-application-in-microsoft-azure-cloud-dd8fb63419c5
 
+Deploying Angular + Spring Boot + MangoDB  Application in Google Kubernetes Engine (GKE)
+	https://medium.com/@raghavendra.pes/deploying-angular-java-spring-boot-application-in-google-kubernetes-engine-gke-b7d96ce084b5
+```
+
+## Spring Angular
+### Steps to Deploy Angular application on Kubernetes
+```
+https://blog.mayadata.io/openebs/steps-to-deploy-angular-application-on-kubernetes
+```
+
+### Build a CRUD App with Angular 9 and Spring Boot 2.2
+```
+https://dzone.com/articles/angular-docker-spring-boot-a-match-made-in-heaven
+https://github.com/oktadeveloper/okta-angular-deployment-example.git
+```
+
 ## Build a Microservice Architecture with Spring Boot and Kubernetes
+```
 https://developer.okta.com/blog/2019/04/01/spring-boot-microservices-with-kubernetes
+```
 
 ## Helm Chart
 ### Deploying PostgreSQL through a Helm Chart: https://thenewstack.io/tutorial-deploy-postgresql-on-kubernetes-running-the-openebs-storage-engine/
@@ -286,17 +398,9 @@ https://developer.okta.com/blog/2019/04/01/spring-boot-microservices-with-kubern
 ## Developing and deploying Spring Boot microservices on Kubernetes (Freemarker+Spring boot+MongoDB)
 https://learnk8s.io/spring-boot-kubernetes-guide
 
-## Deploying Angular + Spring Boot + MangoDB  Application in Google Kubernetes Engine (GKE)
-https://medium.com/@raghavendra.pes/deploying-angular-java-spring-boot-application-in-google-kubernetes-engine-gke-b7d96ce084b5
 
 
-## Steps to Deploy Angular application on Kubernetes
-https://blog.mayadata.io/openebs/steps-to-deploy-angular-application-on-kubernetes
-https://developer.okta.com/blog/2020/05/29/angular-deployment
 
-## Build a CRUD App with Angular 9 and Spring Boot 2.2
-https://dzone.com/articles/angular-docker-spring-boot-a-match-made-in-heaven
-https://developer.okta.com/blog/2020/01/06/crud-angular-9-spring-boot-2	// start.spring.io 
 
 ## Deploying a full-stack Spring boot, Mysql, and React app on Kubernetes with Persistent Volumes and Secrets
 https://www.callicoder.com/deploy-spring-mysql-react-nginx-kubernetes-persistent-volume-secret/
@@ -329,6 +433,28 @@ CREATE SCHEMA ekspoc_api_dev
 SELECT * FROM information_schema.tables
 SELECT * FROM information_schema.columns WHERE table_schema = 'ekspoc_api_dev' AND table_name = 'TEMP';
 ```
+## MongoDB
+```
+How to secure MongoDB with username and password
+https://stackoverflow.com/questions/4881208/how-to-secure-mongodb-with-username-and-password
+
+mangodb documentation for the local installation
+https://docs.mongodb.com/manual/administration/install-community/
+```
+## CORS 
+```
+https://www.codecademy.com/articles/what-is-cors
+in dev https://raw.githubusercontent.com/raghav141988/contacts/master/contacts-backend/src/main/java/com/example/contactsbackend/SecurityConfiguration.java
+in prod  https://raw.githubusercontent.com/raghav141988/contacts/master/contacts-backend/src/main/java/com/example/contactsbackend/SecurityConfiguration.java
+Spring Boot CSRF support 
+	https://www.baeldung.com/spring-security-csrf
+angular support of CSRF
+	https://angular.io/guide/security?source=post_page-----b7d96ce084b5----------------------
+```
+## Spring Profiles
+```
+https://www.baeldung.com/spring-profiles
+```
 
 ## Reference Documentation
 For further reference, please consider the following sections:
@@ -352,3 +478,14 @@ The following guides illustrate how to use some features concretely:
 
 # Next :
 ## docker app build and deploy usimg yaml
+## use horizontal pod scaler
+```
+https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html
+```
+
+## Horizontal POS autoscaler // cluster matrix 
+Deploying and Scaling Spring Boot Microservices to Amazon EKS - AWS User Group Singapore
+```
+https://youtu.be/hZyUOvP7qv0
+https://github.com/learnk8s/spring-boot-k8s-hpa
+```

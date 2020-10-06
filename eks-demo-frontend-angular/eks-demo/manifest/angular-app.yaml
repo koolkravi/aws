@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eks-angular-poc
+  labels:
+    app: eks-angular-poc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eks-angular-poc
+  template:
+    metadata:
+      labels:
+        app: eks-angular-poc
+    spec:
+      containers:
+      - name: eks-angular-poc
+        image: 770239628917.dkr.ecr.us-west-2.amazonaws.com/eks-angular-poc:v0.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        #env:
+        # - name: SPRINGBOOT_HOST
+        #    valueFrom:
+        #      configMapKeyRef:
+        #        name: springboot-host-config
+        #        key: springboot_host		
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eks-angular-poc-loadbalancer
+  labels:
+    app: eks-angular-poc-loadbalancer
+spec:
+  selector:
+    app: eks-angular-poc
+  ports:
+    - name: http
+      port: 80
+  type: LoadBalancer 

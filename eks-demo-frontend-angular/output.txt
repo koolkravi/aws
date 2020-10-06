@@ -1,0 +1,54 @@
+# 1. 
+```
+$ ng new eks-demo
+CREATE eks-demo/angular.json (3582 bytes)
+CREATE eks-demo/package.json (1251 bytes)
+CREATE eks-demo/README.md (1025 bytes)
+CREATE eks-demo/tsconfig.json (458 bytes)
+CREATE eks-demo/tslint.json (3185 bytes)
+CREATE eks-demo/.editorconfig (274 bytes)
+CREATE eks-demo/.gitignore (631 bytes)
+CREATE eks-demo/.browserslistrc (853 bytes)
+CREATE eks-demo/karma.conf.js (1020 bytes)
+CREATE eks-demo/tsconfig.app.json (287 bytes)
+CREATE eks-demo/tsconfig.spec.json (333 bytes)
+CREATE eks-demo/src/favicon.ico (948 bytes)
+CREATE eks-demo/src/index.html (293 bytes)
+CREATE eks-demo/src/main.ts (372 bytes)
+CREATE eks-demo/src/polyfills.ts (2835 bytes)
+CREATE eks-demo/src/styles.css (80 bytes)
+CREATE eks-demo/src/test.ts (753 bytes)
+CREATE eks-demo/src/assets/.gitkeep (0 bytes)
+CREATE eks-demo/src/environments/environment.prod.ts (51 bytes)
+CREATE eks-demo/src/environments/environment.ts (662 bytes)
+CREATE eks-demo/src/app/app.module.ts (314 bytes)
+CREATE eks-demo/src/app/app.component.html (25725 bytes)
+CREATE eks-demo/src/app/app.component.spec.ts (946 bytes)
+CREATE eks-demo/src/app/app.component.ts (212 bytes)
+CREATE eks-demo/src/app/app.component.css (0 bytes)
+CREATE eks-demo/e2e/protractor.conf.js (869 bytes)
+CREATE eks-demo/e2e/tsconfig.json (294 bytes)
+CREATE eks-demo/e2e/src/app.e2e-spec.ts (641 bytes)
+CREATE eks-demo/e2e/src/app.po.ts (301 bytes)
+- Installing packages...
+ÔêÜ Packages installed successfully.
+    Directory is already under version control. Skipping initialization of git.
+
+```
+
+```
+$ kubectl get svc
+NAME                           TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+eks-angular-poc-loadbalancer   LoadBalancer   10.100.115.87   aff4942e548a5448a9271f78cc6653f0-1894486309.us-west-2.elb.amazonaws.com   80:30960/TCP   40s
+kubernetes                     ClusterIP      10.100.0.1      <none>                                                                    443/TCP        13m
+
+$ kubectl get pod
+NAME                               READY   STATUS    RESTARTS   AGE
+eks-angular-poc-59f95dbdc6-h65m6   1/1     Running   0          9s
+
+
+$ kubectl get svc
+NAME                           TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+eks-angular-poc-loadbalancer   LoadBalancer   10.100.98.150   a202d908118074e5eb86d739628f2ba6-1609632110.us-west-2.elb.amazonaws.com   80:30861/TCP   29s
+kubernetes                     ClusterIP      10.100.0.1      <none>  
+```
