@@ -1,3 +1,4 @@
+
 package com.mycom.poc.eksdemo.service;
 
 import java.util.Optional;
@@ -31,4 +32,5 @@ public class ContactService {
 		contact.setId(id);
 		contactRepository.delete(contact);
 	}
+
 }

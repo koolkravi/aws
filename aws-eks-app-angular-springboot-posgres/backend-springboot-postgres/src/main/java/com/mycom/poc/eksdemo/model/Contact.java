@@ -1,3 +1,4 @@
+
 package com.mycom.poc.eksdemo.model;
 
 import javax.persistence.Entity;
@@ -7,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+
 @Table(name = "Contact")
 public class Contact {
 
@@ -28,6 +30,7 @@ public class Contact {
 		this.email = email;
 		this.phone = phone;
 	}
+
 	public Contact(String name, String email, String phone) {
 		this.name = name;
 		this.email = email;

@@ -201,7 +201,11 @@ kubectl apply -f resources/spring-boot-app.yaml
 ```
 kubectl get svc spring-boot-postgres-poc
 http://<External IP Address>:8080   (e.g. a91e1a89bd5f74a91ab8f3d0b7a3feac-469189436.us-west-2.elb.amazonaws.com:8080)
+```
 
+```
+REST APIs
+http://<External IP Address>:8080/
 ```
 
 ## Step 2.6 Scale

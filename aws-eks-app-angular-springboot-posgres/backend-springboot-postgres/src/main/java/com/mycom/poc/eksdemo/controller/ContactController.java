@@ -32,8 +32,8 @@ public class ContactController {
 
 	@PostMapping("save")
 
-	public ModelAndView saveContact(@RequestParam("name") String name,
-			@RequestParam("email") String email, @RequestParam("phone") String phone, RedirectAttributes redirect) {
+	public ModelAndView saveContact(@RequestParam("name") String name, @RequestParam("email") String email,
+			@RequestParam("phone") String phone, RedirectAttributes redirect) {
 		log.info("Contact data:: ");
 
 		List<Contact> values = (List<Contact>) contactService.findAll();
