@@ -168,6 +168,16 @@ Dependencies
 ./mvnw -DskipTests clean package
 ```
 
+TO Run and test APIs Locally
+```
+cd aws-eks-app-angular-springboot-posgres\backend-springboot-postgres
+mvn -DskipTests clean package
+Java -jar target/eks-demo-0.0.1-SNAPSHOT.jar -DPOSTGRES_HOST=localhost -DPOSTGRES_DB=postgres -DPOSTGRES_PASSWORD=postgres -DPOSTGRES_USER=postgres 
+
+GET http://localhost:8080/api/v1/employees
+```
+
+
 ## Step 2.3. Build and Push Docker Image to ECR 
 
 Dockerfile
@@ -205,7 +215,7 @@ http://<External IP Address>:8080   (e.g. a91e1a89bd5f74a91ab8f3d0b7a3feac-46918
 
 ```
 REST APIs
-http://<External IP Address>:8080/
+http://<External IP Address>:8080/api/v1/employees
 ```
 
 ## Step 2.6 Scale
@@ -259,15 +269,100 @@ Angular CLI: 10.1.4
 ## Step 3.1. Create an Angular application
 
 ```
-cd eks-demo-frontend-angular
+cd aws-eks-app-angular-springboot-posgres\frontend-angular
 
-ng new eks-demo
+ng new eks-demo --routing=true
 cd eks-demo
 
 ng serve --open
 
 http://localhost:4200/
 ```
+
+### Step a: Generate module with routing 
+```
+### ng g module sub-folder/[module-name] --routing or ng g m sub-folder/[module-name] --routing 
+
+ng g m employee --routing 
+```
+
+### Step b: Generate component inside module 
+```
+#ng g component employee --module=employee/employee.module.ts --dry-run
+ng g component employee --module=employee/employee.module.ts
+```
+
+### Step c: Generate Service
+```
+#ng generate service employee/service/employee  --dry-run
+ng generate service employee/service/employee
+```
+
+### Step d: Generate model (interface/class/constant file)
+```
+ng g class  employee/model/employee
+#ng g interface employee/model/employee
+
+ng g class  constant/api --type=constant 
+
+```
+
+### Step e: Update app.module.ts
+```
+import { HttpClientModule } from '@angular/common/http';
+imports: [
+  BrowserModule,
+  HttpClientModule
+],
+```
+
+
+### Step f:  Update Service (employee.service.ts) and add HttpClient to call Backend APIs
+```
+import { HttpClient } from '@angular/common/http';
+constructor(private http: HttpClient) { }
+```
+
+### Step g:  Call service from  component (employee.component.ts)
+```
+selector: 'app-employee'
+ 
+constructor(private employeeService: EmployeeService) { }
+  ngOnInit(): void {
+    this.employeeService.getEmployees().subscribe(
+      Response => this.handleSuccessfulResponse(Response)
+    )
+  }  
+```
+
+### Step h: update employee.component.html to itegrate employee list
+```
+see employee.component.html 
+```
+
+### Step i: Add below route in app-routing.module.ts
+```
+const routes: Routes = [
+  { path: 'employees', loadChildren: () => import('./employee/employee.module').then(m => m.EmployeeModule) }
+];
+```
+
+### Step j: Add route in employee-routing.module.ts
+```
+const routes: Routes = [
+  { path: '', component: EmployeeComponent }
+];
+```
+
+### Step k: Install Boot strap [Check Here](https://github.com/koolkravi/website-platground/tree/master/frontend/angular)
+
+### Step l: add cros origin in spring boot rest service
+```
+check class 
+@CrossOrigin(origins = "http://localhost:4200")
+```
+
+
 ## Step 3.2. Create custom Nginx config
 ```
 mkdir nginx
@@ -380,6 +475,17 @@ Deploying Angular + Spring Boot + MangoDB  Application in Google Kubernetes Engi
 https://blog.mayadata.io/openebs/steps-to-deploy-angular-application-on-kubernetes
 ```
 
+### Angular 7 + Spring Boot Application: Hello World Example // @CrossOrigin(origins = "http://localhost:4200")
+```
+https://dzone.com/articles/angular-7-spring-boot-application-hello-world-exam
+https://youtu.be/CCOLXL-hOfQ
+```
+
+### Lazy Loaded Module Example in Angular 10/9 with loadChildren & Dynamic Imports
+```
+https://www.techiediaries.com/angular-lazy-load-module-example/
+```
+
 ### Build a CRUD App with Angular 9 and Spring Boot 2.2
 ```
 https://dzone.com/articles/angular-docker-spring-boot-a-match-made-in-heaven
@@ -486,3 +592,6 @@ Deploying and Scaling Spring Boot Microservices to Amazon EKS - AWS User Group S
 https://youtu.be/hZyUOvP7qv0
 https://github.com/learnk8s/spring-boot-k8s-hpa
 ```
+
+
+

@@ -52,3 +52,10 @@ NAME                           TYPE           CLUSTER-IP      EXTERNAL-IP       
 eks-angular-poc-loadbalancer   LoadBalancer   10.100.98.150   a202d908118074e5eb86d739628f2ba6-1609632110.us-west-2.elb.amazonaws.com   80:30861/TCP   29s
 kubernetes                     ClusterIP      10.100.0.1      <none>  
 ```
+
+```
+PS D:\my_data4\5.study_material\aws\aws-eks-app-angular-springboot-posgres\frontend-angular\eks-demo> ng g class  constant/api --type=constant
+CREATE src/app/constant/api.constant.spec.ts (151 bytes)
+CREATE src/app/constant/api.constant.ts (21 bytes)
+
+```
