@@ -1,0 +1,6 @@
+https://towardsdatascience.com/kubernetes-application-deployment-with-aws-eks-and-ecr-4600e11b2d3c
+
+
+1. DEPLOYING YOUR SPRING BOOT APPLICATION WITH KUBERNETES
+https://ordina-jworks.github.io/cloud/2019/08/05/deploy-spring-boot-kubernetes.html
+
