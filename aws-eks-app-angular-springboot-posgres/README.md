@@ -303,7 +303,6 @@ http://<External IP Address>   (e.g. a91e1a89bd5f74a91ab8f3d0b7a3feac-469189436.
 ```
 
 
-
 # Step 4: Clean UP: 
 ```
 kubectl delete -f eks-demo-frontend-angular/eks-demo/manifest/angular-app.yaml

@@ -11,7 +11,6 @@ https://github.com/aws-samples/aws-kube-codesuite
 ```
 
 
-
 # Amazon EKS full automated deployment with Ansible
 ```
 https://github.com/aws-samples/aws-amazon-eks-ansible-example
@@ -27,6 +26,10 @@ https://medium.com/on-the-cloud/aws-write-infrastructure-as-code-using-cloudform
 https://aws.amazon.com/blogs/containers/building-serverless-admission-webhooks-for-kubernetes-with-aws-sam/
 ```
 
+Devops | CI/CD Tutorial | CI/CD pipeline for Java Spring Boot | Jenkins | Ansible | EKS Cluster
+```
+https://www.youtube.com/watch?v=sl-KFkzI8aM
+```
 
 # 1. Horizontal pos scaler
 ```
