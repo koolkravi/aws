@@ -362,6 +362,50 @@ check class
 @CrossOrigin(origins = "http://localhost:4200")
 ```
 
+### step k : create create and list components and add seelctor into employee.component.html
+```
+ng g component employee/employee-create --module=employee/employee.module.ts  
+ng g component employee/employee-list --module=employee/employee.module.ts  
+
+#into employee.component.html
+<app-employee-create></app-employee-create>
+<app-employee-list></app-employee-list>
+
+# Create form ->  ref : https://angular.io/guide/reactive-forms
+	1. import  ReactiveFormsModule into employee.module.ts
+	2. add FormBuilder into employee-create.component.ts
+		constructor(private fb: FormBuilder) { }
+	3. create employeeForm using FormBuilder into employee-create.component.ts
+		  employeeForm = this.fb.group(
+			{
+			  name: ['emp1', Validators.required],
+			  designation: ['developer', Validators.required],
+			  salary: ['4000', Validators.required]
+			}
+		  );
+
+	4. associate it in  employee-create.component.html
+		<form [formGroup]="employeeForm">
+			      <input type="text" formControlName="name" class="form-control" id="inputName" placeholder="Name">
+		</form>
+	5. save the data // add (ngSubmit)="onEmployeeAddSubmit()" to form elecment into employee-create.component.html
+	6. add onEmployeeAddSubmit() method into employee-create.component.ts
+	7. add submit button into employee-create.component.html
+		<button type="submit" [disabled]="!employeeForm.valid">Submit</button>
+# display form status : add into employee-create.component.html
+	 Form Status: {{ employeeForm.status }}
+	 value: {{ employeeForm.get('name').value}}
+# How to update list component from create component->BehaviorSubject:  
+Ref: Angular Observable Data Services : 
+https://coryrylan.com/blog/angular-observable-data-services
+```
+
+### Step L: Component interaction
+```
+https://angular.io/guide/component-interaction#!#bidirectional-service
+
+```
+
 
 ## Step 3.2. Create custom Nginx config
 ```

@@ -1,0 +1,20 @@
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">name</th>
+        <th scope="col">designation</th>
+        <th scope="col">salary</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let employee of employees">
+        <th scope="row">{{employee.empId}}</th>
+        <td>{{employee.name}}</td>
+        <td>{{employee.designation}}</td>
+        <td>{{employee.salary}}</td>
+        <td><button type="button" class="btn btn-danger" (click)="deleteEmployee(employee)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>

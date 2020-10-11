@@ -10,15 +10,15 @@ Parameters:
     Type: String
     Default: arn:aws:iam::770239628917:role/eksWorkerNodeGroupRole-NodeInstanceRole-1FNWY9OWEHATB
     Description: RoleArn
-  AmiType:
-    Type: String
-    Default: AL2_x86_64_GPU
-    Description: AmiType
+  #AmiType:
+  #  Type: String
+  #  Default: AL2_x86_64_GPU
+  #  Description: AmiType (Amazon Linux 2 GPU Enabled)
   InstanceTypes:
     Type: CommaDelimitedList
     Default: t3.small
     Description: InstanceTypes
-
+    
   SubnetIds:
     Type: CommaDelimitedList
     Default: subnet-0c64cd521f1b99fe4,subnet-0a55114cf202df088,subnet-00eca565a5ae026e1,subnet-0c12781233356d113
@@ -41,6 +41,12 @@ Parameters:
     Type: String
     Default: ravieksawskey
     Description: Ec2 Ssh Key
+    
+Mappings:
+  # Map Linux2 AMI id to region
+  AmiType:
+    us-west-2:      # US West (Oregon)
+      AmiTypeLinux2GPUEnabled: AL2_x86_64_GPU
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -51,7 +57,7 @@ Metadata:
         Parameters:
           - ClusterName
           - NodeGroupRoleArn
-          - AmiType
+          #- AmiType
           - InstanceTypes
           - PrivateSubnetIds
       -
@@ -74,7 +80,8 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       NodeRole: !Ref NodeGroupRoleArn
-      AmiType: !Ref AmiType
+      #AmiType: !Ref AmiType
+      AmiType: !FindInMap [AmiType, !Ref 'AWS::Region', AmiTypeLinux2GPUEnabled]
       InstanceTypes: !Ref InstanceTypes
       DiskSize: 20
       Subnets: !Ref SubnetIds

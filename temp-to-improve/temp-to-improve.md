@@ -10,7 +10,6 @@ Image : aws_codepipeline_landa_eks.JPG
 https://github.com/aws-samples/aws-kube-codesuite
 ```
 
-
 # Amazon EKS full automated deployment with Ansible
 ```
 https://github.com/aws-samples/aws-amazon-eks-ansible-example

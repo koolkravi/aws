@@ -30,6 +30,7 @@ Parameters:
     Description: CidrBlock for private subnet 02 within the VPC
 
 Metadata:
+  # Control the UI display when running this template from the AWS Management Console
   AWS::CloudFormation::Interface:
     ParameterGroups:
       -
@@ -43,6 +44,7 @@ Metadata:
           - PrivateSubnet02Block
 
 Resources:
+  # VPC
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -53,32 +55,176 @@ Resources:
       - Key: Name
         Value: !Sub '${AWS::StackName}-VPC'
 
+  # Internet Gateway
   InternetGateway:
     Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}-igw'    
 
+  # (attach Internet Gateway to VPC)
   VPCGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
 
+  # Subnets
+  PublicSubnet01:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: Subnet 01
+    Properties:
+      VpcId:
+        Ref: VPC    
+      AvailabilityZone:
+        Fn::Select:
+        - '0'
+        - Fn::GetAZs:
+            Ref: AWS::Region        
+      CidrBlock:
+        Ref: PublicSubnet01Block
+      MapPublicIpOnLaunch: true        
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-PublicSubnet01"
+      - Key: kubernetes.io/role/elb
+        Value: 1
+
+  PublicSubnet02:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: Subnet 02
+    Properties:
+      VpcId:
+        Ref: VPC      
+      AvailabilityZone:
+        Fn::Select:
+        - '1'
+        - Fn::GetAZs:
+            Ref: AWS::Region
+      CidrBlock:
+        Ref: PublicSubnet02Block
+      MapPublicIpOnLaunch: true        
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-PublicSubnet02"
+      - Key: kubernetes.io/role/elb
+        Value: 1
+
+  PrivateSubnet01:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: Subnet 03
+    Properties:
+      VpcId:
+        Ref: VPC    
+      AvailabilityZone:
+        Fn::Select:
+        - '0'
+        - Fn::GetAZs:
+            Ref: AWS::Region
+      CidrBlock:
+        Ref: PrivateSubnet01Block
+      MapPublicIpOnLaunch: false  
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-PrivateSubnet01"
+      - Key: kubernetes.io/role/internal-elb
+        Value: 1
+
+  PrivateSubnet02:
+    Type: AWS::EC2::Subnet
+    Metadata:
+      Comment: Private Subnet 02
+    Properties:
+      VpcId:
+        Ref: VPC    
+      AvailabilityZone:
+        Fn::Select:
+        - '1'
+        - Fn::GetAZs:
+            Ref: AWS::Region
+      CidrBlock:
+        Ref: PrivateSubnet02Block
+      MapPublicIpOnLaunch: false  
+      Tags:
+      - Key: Name
+        Value: !Sub "${AWS::StackName}-PrivateSubnet02"
+      - Key: kubernetes.io/role/internal-elb
+        Value: 1
+
+  # ElasticIP
+  NatEIPPublicSubnet01:
+    DependsOn:
+    - VPCGatewayAttachment
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+
+  NatEIPPublicSubnet02:
+    DependsOn:
+    - VPCGatewayAttachment
+    Type: 'AWS::EC2::EIP'
+    Properties:
+      Domain: vpc
+
+  # NAT Gateway
+  NatGateway01:
+    DependsOn:
+    - NatEIPPublicSubnet01
+    - PublicSubnet01
+    - VPCGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt 'NatEIPPublicSubnet01.AllocationId'
+      SubnetId: !Ref PublicSubnet01
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}-NatGateway01'
+
+  NatGateway02:
+    DependsOn:
+    - NatEIPPublicSubnet02
+    - PublicSubnet02
+    - VPCGatewayAttachment
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt 'NatEIPPublicSubnet02.AllocationId'
+      SubnetId: !Ref PublicSubnet02
+      Tags:
+      - Key: Name
+        Value: !Sub '${AWS::StackName}-NatGateway02' 
+ 
+  # Public Route Tables
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Public Subnets
+        Value: !Sub ${AWS::StackName}-PublicRouteTable
       - Key: Network
         Value: Public
 
+  # Attach IGW to public route table
+  PublicRoute:
+    DependsOn: VPCGatewayAttachment
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway  
+
+  # Public Route Tables
   PrivateRouteTable01:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private Subnet AZ1
+        Value: !Sub ${AWS::StackName}-PrivateRouteTable01
       - Key: Network
         Value: Private01
 
@@ -88,18 +234,11 @@ Resources:
       VpcId: !Ref VPC
       Tags:
       - Key: Name
-        Value: Private Subnet AZ2
+        Value: !Sub ${AWS::StackName}-PrivateRouteTable02
       - Key: Network
         Value: Private02
-
-  PublicRoute:
-    DependsOn: VPCGatewayAttachment
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-
+ 
+  # Attach IGW to Private  route table
   PrivateRoute01:
     DependsOn:
     - VPCGatewayAttachment
@@ -120,128 +259,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway02
 
-  NatGateway01:
-    DependsOn:
-    - NatGatewayEIP1
-    - PublicSubnet01
-    - VPCGatewayAttachment
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt 'NatGatewayEIP1.AllocationId'
-      SubnetId: !Ref PublicSubnet01
-      Tags:
-      - Key: Name
-        Value: !Sub '${AWS::StackName}-NatGatewayAZ1'
-
-  NatGateway02:
-    DependsOn:
-    - NatGatewayEIP2
-    - PublicSubnet02
-    - VPCGatewayAttachment
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt 'NatGatewayEIP2.AllocationId'
-      SubnetId: !Ref PublicSubnet02
-      Tags:
-      - Key: Name
-        Value: !Sub '${AWS::StackName}-NatGatewayAZ2'
-
-  NatGatewayEIP1:
-    DependsOn:
-    - VPCGatewayAttachment
-    Type: 'AWS::EC2::EIP'
-    Properties:
-      Domain: vpc
-
-  NatGatewayEIP2:
-    DependsOn:
-    - VPCGatewayAttachment
-    Type: 'AWS::EC2::EIP'
-    Properties:
-      Domain: vpc
-
-  PublicSubnet01:
-    Type: AWS::EC2::Subnet
-    Metadata:
-      Comment: Subnet 01
-    Properties:
-      MapPublicIpOnLaunch: true
-      AvailabilityZone:
-        Fn::Select:
-        - '0'
-        - Fn::GetAZs:
-            Ref: AWS::Region
-      CidrBlock:
-        Ref: PublicSubnet01Block
-      VpcId:
-        Ref: VPC
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-PublicSubnet01"
-      - Key: kubernetes.io/role/elb
-        Value: 1
-
-  PublicSubnet02:
-    Type: AWS::EC2::Subnet
-    Metadata:
-      Comment: Subnet 02
-    Properties:
-      MapPublicIpOnLaunch: true
-      AvailabilityZone:
-        Fn::Select:
-        - '1'
-        - Fn::GetAZs:
-            Ref: AWS::Region
-      CidrBlock:
-        Ref: PublicSubnet02Block
-      VpcId:
-        Ref: VPC
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-PublicSubnet02"
-      - Key: kubernetes.io/role/elb
-        Value: 1
-
-  PrivateSubnet01:
-    Type: AWS::EC2::Subnet
-    Metadata:
-      Comment: Subnet 03
-    Properties:
-      AvailabilityZone:
-        Fn::Select:
-        - '0'
-        - Fn::GetAZs:
-            Ref: AWS::Region
-      CidrBlock:
-        Ref: PrivateSubnet01Block
-      VpcId:
-        Ref: VPC
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-PrivateSubnet01"
-      - Key: kubernetes.io/role/internal-elb
-        Value: 1
-
-  PrivateSubnet02:
-    Type: AWS::EC2::Subnet
-    Metadata:
-      Comment: Private Subnet 02
-    Properties:
-      AvailabilityZone:
-        Fn::Select:
-        - '1'
-        - Fn::GetAZs:
-            Ref: AWS::Region
-      CidrBlock:
-        Ref: PrivateSubnet02Block
-      VpcId:
-        Ref: VPC
-      Tags:
-      - Key: Name
-        Value: !Sub "${AWS::StackName}-PrivateSubnet02"
-      - Key: kubernetes.io/role/internal-elb
-        Value: 1
-
+  # Associate public subnets to public route table
   PublicSubnet01RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -254,6 +272,7 @@ Resources:
       SubnetId: !Ref PublicSubnet02
       RouteTableId: !Ref PublicRouteTable
 
+  # Associate private subnets to private route table
   PrivateSubnet01RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
